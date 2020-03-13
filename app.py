@@ -16,7 +16,8 @@ def create_app(test_config=None):
 
     @app.route('/players', methods=['GET'])
     #@requires_auth('get:players')
-    def get_players(payload):
+    #def get_players(payload):
+    def get_players():
         players = Player.query.all()
 
         outplayers = [player.format() for player in players]
