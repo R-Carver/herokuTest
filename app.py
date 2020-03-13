@@ -2,6 +2,7 @@ from flask import Flask, jsonify, abort, request
 from flask_sqlalchemy import SQLAlchemy
 
 from models import setup_db, Player, db
+from auth import AuthError, requires_auth
 
 def create_app(test_config=None):
     app = Flask(__name__)
