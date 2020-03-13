@@ -15,9 +15,9 @@ def create_app(test_config=None):
         })
 
     @app.route('/players', methods=['GET'])
-    #@requires_auth('get:players')
-    #def get_players(payload):
-    def get_players():
+    @requires_auth('get:players')
+    def get_players(payload):
+    #def get_players():
         players = Player.query.all()
 
         outplayers = [player.format() for player in players]
@@ -28,9 +28,9 @@ def create_app(test_config=None):
         })
 
     @app.route('/players', methods=['POST'])
-    #@requires_auth('post:players')
-    #def create_player(payload):
-    def create_player():
+    @requires_auth('post:players')
+    def create_player(payload):
+    #def create_player():
         try:
             body = request.get_json()
 
