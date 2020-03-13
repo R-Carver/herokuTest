@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, abort, request
 from flask_sqlalchemy import SQLAlchemy
 
-from models import setup_db, Player, db
+from models import setup_db, Player, Team, db
 from auth import AuthError, requires_auth
 
 def create_app(test_config=None):
@@ -18,7 +18,6 @@ def create_app(test_config=None):
     @app.route('/players', methods=['GET'])
     @requires_auth('get:players')
     def get_players(payload):
-    #def get_players():
         players = Player.query.all()
 
         outplayers = [player.format() for player in players]
@@ -28,10 +27,21 @@ def create_app(test_config=None):
             'players': outplayers
         })
 
+    @app.route('/teams', methods=['GET'])
+    @requires_auth('get:teams')
+    def get_teams(payload):
+        teams = Team.query.all()
+
+        outteams = [team.format() for team in teams]
+
+        return jsonify({
+            'success':True,
+            'teams':outteams
+        })
+
     @app.route('/players', methods=['POST'])
     @requires_auth('post:players')
     def create_player(payload):
-    #def create_player():
         try:
             body = request.get_json()
 
@@ -47,6 +57,59 @@ def create_app(test_config=None):
             })
         except:
             abort(422)
+
+    @app.route('/teams/<int:team_id>', methods=['PATCH'])
+    @requires_auth('patch:team')
+    def update_team(payload, team_id):
+        try:
+            old_team = Team.query.filter(Team.id == team_id).one_or_none()
+
+            new_team = request.get_json()
+
+            new_name = new_team.get('name', None)
+            new_city = new_team.get('city', None)
+
+            if new_name is not None:
+                old_team.name = new_name
+            if new_city is not None:
+                old_team.city = new_city
+
+            old_team.update()
+
+            return jsonify({
+                'success': True,
+                'team': old_team.format()
+            })
+        
+        except:
+            abort(422)
+
+    @app.route('/players/<int:player_id>', methods=['DELETE'])
+    @requires_auth('delete:player')
+    def delete_player(payload, player_id):
+        try:
+            player = Player.query.filter(Player.id == player_id).one_or_none()
+
+            if player is None:
+                abort(404)
+            
+            player.delete()
+
+            return jsonify({
+                'success': True,
+                'delete_id': player_id
+            })
+        except:
+            abort(422)
+
+    #error handlers
+    @app.errorhandler(405)
+    def not_allowed(error):
+        return jsonify({
+            "success":False,
+            "error":405,
+            "message":"not allowed"
+        })
 
     @app.errorhandler(422)
     def unprocessable(error):

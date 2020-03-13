@@ -39,3 +39,27 @@ class Player(db.Model):
             'name': self.name,
             'skill': self.skill
         }
+
+class Team(db.Model):
+    __tablename__ = 'team'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    city = Column(String)
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def format(self):
+        return {
+            'name': self.name,
+            'city': self.city
+        }
